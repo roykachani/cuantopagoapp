@@ -21,8 +21,6 @@ export default async function handleAcounts(req, res) {
         }
       }
       case 'POST': {
-        const data = req.body;
-        console.log(data);
         const user = await createUser(req.body);
 
         return res.json(user);
