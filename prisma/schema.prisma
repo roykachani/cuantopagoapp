@@ -18,7 +18,7 @@ model User {
   rooms     Room[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Bill      Bill[]
+  bills     Bill[]
 }
 
 model Bill {
@@ -35,16 +35,10 @@ model Room {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   description  String
-  users        Users[]
   admin        User     @relation(fields: [adminId], references: [id])
   adminId      String   @db.ObjectId
   bills        Bill[]
   total_amount Int?     @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-}
-
-type Users {
-  email   String
-  entries Int?
 }
