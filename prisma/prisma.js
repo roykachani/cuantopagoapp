@@ -7,9 +7,8 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   if (!global.prisma) {
     global.prisma = new PrismaClient(); //env === "dev" guardo en variable global
-
-    prisma = global.prisma;
   }
+  prisma = global.prisma;
 }
 
 export default prisma;
