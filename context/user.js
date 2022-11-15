@@ -9,17 +9,24 @@ export const UserContext = createContext({
 const { Provider } = UserContext;
 
 export const UserProvider = ({ children }) => {
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState();
 
-  const getUser = (data) => {
-    const check = usersData.find((user, i) => user.email === data.email);
-    console.log(check);
-    if (!!check) {
-      setUserData(check);
-      //seteamos cookies de user
-      return check;
+  const getUser = async () => {
+    const res = await fetch('/api/rooms/room', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await res.json();
+    if (!!data) {
+      setUserData(data);
+      return data;
     }
-    return check;
+
+    setUserData('No hay salas disponibles');
+    return 'No hay salas disponibles';
   };
 
   return <Provider value={{ userData, getUser }}>{children}</Provider>;
