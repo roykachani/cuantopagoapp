@@ -1,18 +1,34 @@
+import Head from 'next/head';
+import { getSession } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import Head from 'next/head';
-import Link from 'next/link';
 import { nanoid } from 'nanoid';
+import Nav from '../components/Nav';
 
-export default function Home() {
+export default function Home({ session }) {
   const [name, setname] = useState('');
   const router = useRouter();
 
-  const handleRoom = (e) => {
+  const handleRoom = async (e) => {
     e.preventDefault();
-    const roomId = nanoid();
-    router.push(`/room/${roomId}/${name}`);
-    //pegarle a la db y crear room
+    if (!session) return;
+    try {
+      const res = await fetch('/api/rooms/createRoom', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json();
+      if (data?.status === 201) {
+        return router.push(`/room/${data.room.id}/${data.room.name}`);
+      } else throw Error;
+    } catch (err) {
+      //manejar error mostrar msj
+      console.log(err);
+    }
   };
 
   return (
@@ -27,35 +43,20 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <header className="my-5 px-3 flex justify-between">
-        <div className="">
-          <h1 className="font-semibold text-teal-900 text-lg">
-            CuantoPago App
-          </h1>
+      <Nav />
+      <section className="flex flex-col items-center  my-11 ">
+        <div className="w-3/4 ">
+          <h2 className="text-4xl text-center mb-8">
+            Carga los gastos.{' '}
+            <span className="font-semibold text-teal-600">Nosotros</span> nos
+            ocupamos del resto!
+          </h2>
+          <h3 className="text-lg text-center">
+            CuantoPago es una aplicación que te ayuda a dividir las cuentas de
+            asados, regalos, meriendas y todo tipo de envetos entre amigos en
+            simples links.
+          </h3>
         </div>
-        <div className="flex gap-3">
-          <Link href="/acounts/login">
-            <div className=" text-lg w-28 bg-teal-600 rounded-md shadow-sm text-center md:cursor-pointer text-gray-200 ">
-              Ingresar
-            </div>
-          </Link>
-          <Link href="/acounts/createAcount">
-            <div className=" text-lg w-28 bg-teal-600 rounded-md shadow-sm text-center md:cursor-pointer text-gray-200 ">
-              Registrarse
-            </div>
-          </Link>
-        </div>
-      </header>
-      <section className="flex flex-col my-11 ">
-        <h2 className="text-xl text-center  mb-7">
-          Carga los gastos. Nosotros nos ocupamos del resto!
-        </h2>
-        <h3>
-          CuantoPago es una aplicación que te ayuda a dividir las cuentas de
-          asados, regalos, meriendas y todo tipo de envetos en simples links,
-          para que puedas pagarlo todo a la vez y no tener que avisar cuanto
-          dinero debe poner cada uno.
-        </h3>
       </section>
 
       <section className=" w-full flex flex-col items-center ">
@@ -74,60 +75,17 @@ export default function Home() {
           Crear Sala
         </button>
       </section>
-
-      {/* <section>
-        <div>
-          <div>
-            <h3>¿Como Funciona?</h3>
-          </div>
-          <div>
-            <div>
-              <Image
-                src="/assets/list_paper_office.png"
-                width={80}
-                height={100}
-              />
-            </div>
-            <div>
-              <h4>Creas tu cuenta</h4>
-              <p>Solo te toma un minuto crearla.</p>
-            </div>
-          </div>
-          <div>
-            <div>
-              <h4>Crea la sala e invita</h4>
-              <p>
-                Compartí el LinkRoom con los participantes. Cuando alguien
-                ingresa, se registra en el sistema y automaticamente puede
-                cargar gastos a dividir.
-              </p>
-            </div>
-            <div>
-              <Image
-                src="/assets/paper_plane_flying-1.png"
-                width={110}
-                height={70}
-              />
-            </div>
-          </div>
-          <div>
-            <div>
-              <Image
-                src="/assets/money_bundle_coins.png"
-                width={80}
-                height={100}
-              />
-            </div>
-            <div>
-              <h4>Nosotros</h4>
-              <p>
-                Al cerrar la sala, te avisamos cuanto debe cada uno. Y te
-                compartimos un link de pago para abonar en MercadoPago.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section> */}
     </>
   );
 }
+
+export const getServerSideProps = async (context) => {
+  const session = await getSession(context);
+  console.log('SESION', session);
+
+  return {
+    props: {
+      session,
+    },
+  };
+};
