@@ -1,7 +1,8 @@
-import 'tailwindcss/tailwind.css';
+import { SessionProvider } from 'next-auth/react';
 import { UserProvider } from '../context/user';
 import { MainProvider } from '../context/main';
 import Layout from '../components/layout';
+import 'tailwindcss/tailwind.css';
 import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
@@ -9,7 +10,9 @@ function MyApp({ Component, pageProps }) {
     <MainProvider>
       <UserProvider>
         <Layout>
-          <Component {...pageProps} />
+          <SessionProvider refetchInterval={5 * 60}>
+            <Component {...pageProps} />
+          </SessionProvider>
         </Layout>
       </UserProvider>
     </MainProvider>
