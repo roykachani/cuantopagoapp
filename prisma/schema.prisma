@@ -90,25 +90,3 @@ enum Role {
   USER
   ADMIN
 }
-
-// model Bill {
-//   id          String  @id @default(auto()) @map("_id") @db.ObjectId
-//   description String
-//   amount      Int     @default(0)
-//   author      User    @relation(fields: [authorId], references: [id])
-//   authorId    String
-//   room        Room?   @relation(fields: [roomId], references: [id])
-//   roomId      String? @db.ObjectId
-// }
-
-// model Room {
-//   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-//   name         String
-//   description  String?
-//   admin        User     @relation(fields: [adminId], references: [id])
-//   adminId      String   @db.ObjectId
-//   bills        Bill[]
-//   total_amount Int?     @default(0)
-//   createdAt    DateTime @default(now())
-//   updatedAt    DateTime @updatedAt
-// }
