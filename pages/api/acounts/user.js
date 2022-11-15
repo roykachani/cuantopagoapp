@@ -1,9 +1,9 @@
 import {
   createUser,
   deleteUser,
-  getAllUser,
-  getUser,
-  updateUser,
+  getAllUsers,
+  getUserById,
+  updateUsers,
 } from '../../../prisma/user';
 
 export default async function handleAcounts(req, res) {
@@ -11,11 +11,11 @@ export default async function handleAcounts(req, res) {
     switch (req.method) {
       case 'GET': {
         if (req.query.id) {
-          const user = await getUser(req.query.id);
+          const user = await getUserById(req.query.id);
 
           return res.status(200).json(user);
         } else {
-          const users = await getAllUser();
+          const users = await getAllUsers();
 
           return res.status(200).json(users);
         }
