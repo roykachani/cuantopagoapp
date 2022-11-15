@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { MainContext } from '../../../context/main';
-import { useSession, getSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 
 import { data, usersData } from '../../../mokData';
 import Router from 'next/router';
