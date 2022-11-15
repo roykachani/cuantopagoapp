@@ -9,36 +9,106 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
-  name      String
-  password  String
-  phone     String
-  rooms     Room[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  bills     Bill[]
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
-model Bill {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  description String
-  amount      Int     @default(0)
-  author      User    @relation(fields: [authorId], references: [id])
-  authorId    String
-  room        Room?   @relation(fields: [roomId], references: [id])
-  roomId      String? @db.ObjectId
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  phone         String?
+  role          Role      @default(USER) //
+  accounts      Account[]
+  sessions      Session[]
+  rooms         Room[]
+  bill          Bill[]
+  profile       Profile[]
 }
 
 model Room {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  description  String
-  admin        User     @relation(fields: [adminId], references: [id])
-  adminId      String   @db.ObjectId
-  bills        Bill[]
-  total_amount Int?     @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  admin       User      @relation(fields: [adminId], references: [id])
+  adminId     String    @db.ObjectId
+  members     Profile[] @relation(name: "members", fields: [membersId], references: [id])
+  membersId   String[]  @db.ObjectId
+  bills       Bill[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
+
+model Bill {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  amount      Int    @default(0)
+  author      User   @relation(fields: [authorId], references: [id])
+  authorId    String @db.ObjectId
+  room        Room   @relation(fields: [roomId], references: [id])
+  roomId      String @db.ObjectId
+}
+
+model Profile {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String   @db.ObjectId
+  name        String //
+  email       String   @unique //
+  isAdminRoom Role     @default(USER) //
+  // rooms       Room[] @relation("members")
+  room        Room[]   @relation(name: "members", fields: [roomId], references: [id])
+  roomId      String[] @db.ObjectId
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// model Bill {
+//   id          String  @id @default(auto()) @map("_id") @db.ObjectId
+//   description String
+//   amount      Int     @default(0)
+//   author      User    @relation(fields: [authorId], references: [id])
+//   authorId    String
+//   room        Room?   @relation(fields: [roomId], references: [id])
+//   roomId      String? @db.ObjectId
+// }
+
+// model Room {
+//   id           String   @id @default(auto()) @map("_id") @db.ObjectId
+//   name         String
+//   description  String?
+//   admin        User     @relation(fields: [adminId], references: [id])
+//   adminId      String   @db.ObjectId
+//   bills        Bill[]
+//   total_amount Int?     @default(0)
+//   createdAt    DateTime @default(now())
+//   updatedAt    DateTime @updatedAt
+// }
